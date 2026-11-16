@@ -32,7 +32,7 @@ Type `no` in the `show` column. Clear it to bring the group back.
 | `contact` | Email for questions | `mike@theburg.church` |
 | `signup_url` | Church Center sign-up link (becomes the QR code) | |
 | `photo` | A photo link, or `none` for no photo. Leave blank to use the built-in photo. | |
-| `emoji` | Icon shown when there's no photo | `📖` |
+| `emoji` | No longer shown. Groups without a photo now get their category's icon. Safe to leave filled in or blank. | |
 | `color` | Accent color as a hex code. Leave blank for automatic. | `#CD5B30` |
 | `show` | `no` hides the group | |
 

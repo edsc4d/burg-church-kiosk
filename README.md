@@ -38,6 +38,14 @@ Built with Claude as a coding partner. I scoped the features, made the design an
 
 Open `index.html` in Chrome in fullscreen/kiosk mode. That's it.
 
+The layout is designed for the display in **portrait (1080×1920)**. Landscape (1920×1080) also works.
+
+On the kiosk PC, launch Chrome with these flags so visitors can't pinch-zoom or swipe the page away. Desktop Chrome ignores the page's own zoom settings on touchscreens.
+
+```bash
+chrome --kiosk --disable-pinch --overscroll-history-navigation=0 file:///path/to/index.html
+```
+
 To connect live data:
 
 1. Copy the columns in [`sample-sheet.csv`](sample-sheet.csv) into a Google Sheet.
