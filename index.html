@@ -34,20 +34,23 @@
    of the panel is about 7 ft off the floor. */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Colors pulled from theburg.church */
+/* Colors pulled from theburg.church, expressed in OKLCH. One accent: the brand orange. */
 :root {
-  --page:     #E6E4D2;   /* page background */
-  --panel:    #F0EEDE;   /* header bar / cards */
-  --panel-2:  #F7F6EE;   /* raised surfaces */
-  --orange:   #CD5B30;   /* brand accent (logo, Watch Live button) */
-  --orange-d: #B24A23;
-  --ink:      #000000;
-  --ink-2:    #3A362E;
-  --muted:    #5F5A4C;
-  --line:     rgba(0,0,0,0.08);
+  --page:     oklch(91.6% 0.024 101.7);   /* page background  (#E6E4D2) */
+  --panel:    oklch(94.6% 0.021 101.0);   /* header bar / cards (#F0EEDE) */
+  --panel-2:  oklch(97.2% 0.011 100.8);   /* raised surfaces  (#F7F6EE) */
+  --orange:   oklch(60.7% 0.156 40.1);    /* brand accent     (#CD5B30) */
+  --orange-d: oklch(54.0% 0.145 39.7);    /* accent text      (#B24A23) */
+  --ok:       oklch(53.5% 0.097 150.7);
+  --ink:      oklch(0% 0 0);
+  --ink-2:    oklch(33.4% 0.015 84.6);
+  --muted:    oklch(46.8% 0.023 90.7);
+  --line:     rgb(0 0 0 / 0.08);
   --radius:   20px;
   --btn-r:    14px;
-  --trans:    0.32s cubic-bezier(0.4,0,0.2,1);
+  --ease:     cubic-bezier(0.4,0,0.2,1);
+  --ease-out-back: cubic-bezier(0.3,1.3,0.5,1);   /* slight follow-through on open */
+  --trans:    0.22s var(--ease);
 
   /* Type scale: readable from 4 ft. Body ≥ 28px, secondary ≥ 24px, labels ≥ 22px. */
   --fs-label: 22px;
@@ -76,6 +79,11 @@ html, body {
   cursor: default;
   touch-action: none;          /* no pinch-zoom, no swipe-to-navigate */
 }
+/* One quiet paper grain behind the cards. */
+body {
+  background-color: var(--page);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .25 0 0 0 0 .15 .14 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 body::before {               /* orange strip across the top, like the site */
   content:''; position:fixed; top:0; left:0; right:0; height:12px;
   background:var(--orange); z-index:50;
@@ -90,7 +98,7 @@ button { font-family:inherit; color:inherit; touch-action:manipulation; }
 .hit::after { content:''; position:absolute; inset:-12px; }
 
 /* Press feedback: fast in (<100ms), softer out. */
-.press { transition: transform 0.18s var(--press), filter 0.18s var(--press), background-color 0.12s; }
+.press { transition: transform 0.18s var(--press), filter 0.18s var(--press), background-color 0.12s var(--ease); }
 .press:active { transform: scale(0.94); filter: brightness(0.9); transition-duration: 0.06s; }
 
 /* ── SCREENS ── */
@@ -104,6 +112,10 @@ button { font-family:inherit; color:inherit; touch-action:manipulation; }
 }
 .screen.active { opacity:1; pointer-events:all; transform:translateY(0); }
 .screen.exit   { opacity:0; transform:translateY(-14px); }
+#detail-screen        { transform:scale(0.97); transform-origin:50% 40%; }
+#detail-screen.active { transform:none; transition: opacity 0.2s var(--ease), transform 0.24s var(--ease-out-back); }
+#detail-screen.exit   { transform:scale(0.985); transition-duration:0.16s; }
+.nw { white-space:nowrap; }
 
 /* ── HEADER BAR (matches the site's nav card) ── */
 .bar {
@@ -198,6 +210,8 @@ button { font-family:inherit; color:inherit; touch-action:manipulation; }
 .card-name { font-weight:700; font-size:var(--fs-title); letter-spacing:-0.03em; line-height:1.12; }
 .card-sub  { font-size:var(--fs-small); font-weight:500; color:var(--muted); letter-spacing:-0.01em; line-height:1.3; }
 .card-meta { margin-top:auto; padding-top:14px; display:flex; flex-direction:column; gap:4px; }
+.card-sub, .card-name { text-wrap:balance; }
+.seg { display:inline-block; }   /* a " · " segment stays together unless it alone is too long */
 .card-time {
   font-size:26px; font-weight:600; color:var(--orange-d); letter-spacing:-0.01em; line-height:1.3;
   font-variant-numeric:tabular-nums;
@@ -260,17 +274,17 @@ button { font-family:inherit; color:inherit; touch-action:manipulation; }
 
 /* ── ADMIN ── */
 .admin-overlay {
-  position:fixed; inset:0; background:rgba(30,28,22,0.55);
+  position:fixed; inset:0; background:oklch(22% 0.01 90 / 0.55);
   backdrop-filter:blur(10px); z-index:1000;
   display:flex; align-items:flex-end; justify-content:center;
   padding-bottom:40px;
-  opacity:0; pointer-events:none; transition:opacity 0.28s;
+  opacity:0; pointer-events:none; transition:opacity 0.22s var(--ease);
 }
 .admin-overlay.open { opacity:1; pointer-events:all; }
 .admin-panel {
   background:var(--panel); border-radius:24px; border-top:8px solid var(--orange);
   padding:48px; width:880px; max-width:92vw;
-  transform:scale(0.95) translateY(16px); transition:transform 0.28s;
+  transform:scale(0.95) translateY(16px); transition:transform 0.26s var(--ease-out-back);
 }
 .admin-overlay.open .admin-panel { transform:scale(1) translateY(0); }
 .admin-title { font-weight:800; font-size:48px; letter-spacing:-0.045em; }
@@ -293,7 +307,7 @@ button { font-family:inherit; color:inherit; touch-action:manipulation; }
 }
 .data-status .warn { color:var(--orange-d); }
 .data-status::before { content:''; display:inline-block; width:14px; height:14px; border-radius:50%; margin-right:10px; vertical-align:1px; background:var(--orange); }
-.data-status.ok::before { background:#3E7D4F; }
+.data-status.ok::before { background:var(--ok); }
 .aclose {
   width:100%; height:var(--target-s);
   font-size:var(--fs-small); font-weight:700;
@@ -303,10 +317,10 @@ button { font-family:inherit; color:inherit; touch-action:manipulation; }
 
 .corner-tap { position:fixed; top:0; right:0; width:80px; height:80px; z-index:9000; }
 .idle-ov {
-  position:fixed; inset:0; background:rgba(230,228,210,0);
-  pointer-events:none; z-index:500; transition:background 1.2s;
+  position:fixed; inset:0; background:oklch(91.6% 0.024 101.7 / 0);
+  pointer-events:none; z-index:500; transition:background 0.3s var(--ease);
 }
-.idle-ov.dim { background:rgba(230,228,210,0.7); }
+.idle-ov.dim { background:oklch(91.6% 0.024 101.7 / 0.7); }
 .idle-toast {
   position:fixed; bottom:200px; left:50%;
   transform:translateX(-50%) translateY(20px);
@@ -314,9 +328,20 @@ button { font-family:inherit; color:inherit; touch-action:manipulation; }
   font-weight:700; font-size:var(--fs-value); letter-spacing:-0.01em;
   padding:24px 48px; border-radius:var(--btn-r); z-index:600;
   opacity:0; pointer-events:none;
-  transition:opacity 0.3s, transform 0.3s; white-space:nowrap;
+  transition:opacity 0.25s var(--ease), transform 0.25s var(--ease); white-space:nowrap;
 }
 .idle-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── REDUCED MOTION: keep feedback as color/opacity, drop movement ── */
+@media (prefers-reduced-motion: reduce) {
+  .screen, .screen.exit, #detail-screen, #detail-screen.active, #detail-screen.exit {
+    transform:none; transition:opacity 0.15s var(--ease);
+  }
+  .press:active { transform:none; }
+  .card:active  { transform:none; }
+  .admin-panel, .admin-overlay.open .admin-panel { transform:none; transition:none; }
+  .idle-toast, .idle-toast.show { transform:translateX(-50%); }
+}
 
 /* ── LANDSCAPE (secondary) ── */
 @media (orientation: landscape) {
@@ -525,6 +550,14 @@ let interacting = false;    // true from a visitor's touch until the idle reset 
 let pending = null;         // refreshed data held back until the next return to the start screen
 
 const $ = id => document.getElementById(id);
+const REDUCED_MOTION = matchMedia('(prefers-reduced-motion: reduce)');
+/* Keep time ranges ("6:30–8pm", "Sep 23 – Nov 18") on one line; let the line break at "·". */
+const timeHTML = s => esc(s).replace(
+  /(~?\d[\d:]*\s*(?:am|pm)?\s*[–-]\s*~?\d[\d:]*\s*(?:am|pm)?|[A-Z][a-z]{2} \d{1,2} – [A-Z][a-z]{2} \d{1,2})/g,
+  '<span class="nw">$1</span>');
+/* Lines break only at " · ": "Every other Tuesday ·" / "6:30–8pm". */
+const segHTML = (s, fmt = esc) => String(s).split(/\s+·\s+/).map((x, i, a) =>
+  `<span class="seg">${fmt(x)}${i < a.length - 1 ? ' ·' : ''}</span>`).join(' ');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
 const store = {
@@ -705,8 +738,8 @@ function renderCards() {
         <div class="card-name">${esc(g.name)}</div>
         ${g.subtitle ? `<div class="card-sub">${esc(g.subtitle)}</div>` : ''}
         ${g.schedule || g.location ? `<div class="card-meta">
-          ${g.schedule ? `<div class="card-time">${esc(g.schedule)}</div>` : ''}
-          ${g.location ? `<div class="card-loc">${esc(g.location)}</div>` : ''}
+          ${g.schedule ? `<div class="card-time">${segHTML(g.schedule, timeHTML)}</div>` : ''}
+          ${g.location ? `<div class="card-loc">${segHTML(g.location)}</div>` : ''}
         </div>` : ''}
       </div>`;
     c.addEventListener('click', () => openDetail(g, color));
@@ -726,9 +759,14 @@ function openDetail(g, color) {
   $('d-photo').innerHTML = m.html;
   setBlock('d-about',   'blk-about',   g.about);
   setBlock('d-time',    'blk-time',    g.schedule);
+  $('d-time').innerHTML = segHTML(g.schedule || '', timeHTML);
+  $('d-loc').innerHTML  = segHTML(g.location || '');
   setBlock('d-loc',     'blk-loc',     g.location);
   setBlock('d-leader',  'blk-leader',  g.leaders);
-  setBlock('d-contact', 'blk-contact', g.contact || CONFIG.DEFAULT_CONTACT);
+  const contact = g.contact || CONFIG.DEFAULT_CONTACT;
+  setBlock('d-contact', 'blk-contact', contact);
+  $('d-contact').innerHTML = esc(contact).replace('@', '@<wbr>');      // wrap at the @, not mid-word
+  $('blk-contact').querySelector('.label').textContent = g.contact ? 'Questions' : 'Questions? Email the church office';
   const url = /^https?:\/\//i.test(g.signup) ? g.signup : CONFIG.DEFAULT_SIGNUP;
   QRCode.toCanvas($('qr-canvas'), url, {
     width:280, margin:1, color:{ dark:'#000000', light:'#ffffff' }, errorCorrectionLevel:'M'
@@ -743,10 +781,11 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => {
     if (s.classList.contains('active')) {
       s.classList.add('exit'); s.classList.remove('active');
-      setTimeout(() => s.classList.remove('exit'), 400);
+      setTimeout(() => s.classList.remove('exit'), 260);
     }
   });
-  setTimeout(() => { $(id).classList.add('active'); screen = id.replace('-screen',''); }, 80);
+  // short beat so the press state reads before the screen moves (anticipation)
+  setTimeout(() => { $(id).classList.add('active'); screen = id.replace('-screen',''); }, 60);
 }
 
 /* ── Idle: back to home + starting tab ── */
@@ -772,7 +811,7 @@ function scheduleIdle() {
     closeAdmin();
     if (screen !== 'home') showScreen('home-screen');
     if (catList().includes(prefs.startTab) && mode !== prefs.startTab) switchMode(prefs.startTab, true);
-    $('cards-scroll').scrollTo({ top:0, behavior:'smooth' });
+    $('cards-scroll').scrollTo({ top:0, behavior: REDUCED_MOTION.matches ? 'auto' : 'smooth' });
     interacting = false;
     applyPending();
   }, idle * 1000);
